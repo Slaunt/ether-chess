@@ -1,7 +1,9 @@
+var path = require('path');
+
 module.exports = {
   entry: ['./src/main.js'],
   output: {
-    path: __dirname + '/build',
+    path: path.join(__dirname, 'build'),
     filename: 'out.js'
   },
   module: {
@@ -20,5 +22,4 @@ module.exports = {
       poll: 1000
     }
   }
-}
-
+};

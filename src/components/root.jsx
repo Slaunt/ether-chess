@@ -1,9 +1,24 @@
 import React from 'react';
+import {Router, Route, hashHistory, Link} from 'react-router';
+
+import Avatar from 'material-ui/lib/avatar';
 import AppBar from 'material-ui/lib/app-bar';
-import Toolbar from 'material-ui/lib/toolbar/toolbar';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import RaisedButton from 'material-ui/lib/raised-button';
-import FlatButton from 'material-ui/lib/flat-button';
+import LeftNav from 'material-ui/lib/left-nav';
+import MenuItem from 'material-ui/lib/menus/menu-item';
+import ActionPermIdentity from 'material-ui/lib/svg-icons/action/perm-identity';
+import Paper from 'material-ui/lib/paper';
+import {Colors} from 'material-ui/lib/styles';
+
+import Index from './index.jsx';
+import About from './about.jsx';
+import Profile from './profile.jsx';
+import Demo from './demo.jsx';
+
+const hfColor = Colors.teal600;
+
+const appBarStyle = {
+  backgroundColor: hfColor
+};
 
 const rootStyle = {
   display: 'flex',
@@ -11,52 +26,115 @@ const rootStyle = {
   width: '100%',
   height: '100%',
   alignItems: 'center'
-}
-
-const toolbarStyle = {
-  margin: '2em',
-  width: '90%'
-}
+};
 
 const padStyle = {
   flexGrow: 1
-}
+};
+
+const plainLink = {
+  color: 'inherit',
+  textDecoration: 'none'
+};
+
+const activeLink = {
+  color: Colors.orange500
+};
 
 const footerStyle = {
   width: '100%',
   fontSize: 'small',
-  color: '#ccc',
-  textAlign: 'center'
-}
+  textAlign: 'center',
+  padding: '0.3em',
+  paddingTop: '0.6em',
+  color: 'white',
+  backgroundColor: hfColor
+};
 
-const holderStyle = {
-  width: '400px'
-}
+const contentStyle = {
+  padding: '2em'
+};
 
-const boardCfg = {
-  position: 'start',
-  draggable: true
-}
+const avatarStyle = {
+  backgroundColor: Colors.blueGrey400
+};
 
-let board;
-function createBoard() {
-  board = ChessBoard('game-holder', boardCfg);
-}
+let RouteContainer = React.createClass({
+  propTypes: {
+    content: React.PropTypes.object,
+    params: React.PropTypes.object
+  },
+
+  getInitialState() {
+    return {navOpen: false};
+  },
+
+  setNav(open) {
+    this.setState({navOpen: open});
+  },
+
+  render() {
+    const NavLink = props => {
+      return (
+        <MenuItem>
+          <Link
+            style={plainLink}
+            activeStyle={activeLink}
+            to={props.to}
+            onClick={() => this.setNav(false)}>
+            {props.children}
+          </Link>
+        </MenuItem>
+      );
+    };
+
+    const You = () => {
+      return (
+        <Link to="/me">
+          <Avatar icon={<ActionPermIdentity />} style={avatarStyle} />
+        </Link>
+      );
+    };
+
+    let Content = this.props.content ? this.props.content.type : Index;
+
+    return (
+      <div className="root" style={rootStyle}>
+        <LeftNav
+          docked={false}
+          open={this.state.navOpen}
+          onRequestChange={open => this.setState({navOpen: open})}>
+          <NavLink to="/demo"> Demo </NavLink>
+          <NavLink to="/about"> About </NavLink>
+          <div style={padStyle}> </div>
+        </LeftNav>
+        <AppBar
+          style={appBarStyle}
+          iconElementRight={<You />}
+          title={<Link style={plainLink} to="/"> Ether Chess </Link>}
+          onLeftIconButtonTouchTap={() => this.setNav(true)}/>
+        <div className="content" style={contentStyle}>
+          <Content params={this.props.params} />
+        </div>
+        <div style={padStyle}> </div>
+        <Paper className="site-footer" style={footerStyle} zDepth={5}>
+          Hello
+        </Paper>
+      </div>
+    );
+  }
+});
 
 const Root = () => {
   return (
-      <div className="root" style={rootStyle}>
-        <AppBar title="Ehess" />
-        <Toolbar style={toolbarStyle}>
-          <ToolbarGroup firstChild={true}>
-          <FlatButton label="Generate" primary={true} onClick={createBoard} />
-          </ToolbarGroup>
-        </Toolbar>
-        <div id="game-holder" style={holderStyle}> </div>
-        <div className="pad" style={padStyle}> </div>
-        <div className="footer" style={footerStyle}> Credits </div>
-      </div>
-      );
+    <Router history={hashHistory}>
+      <Route path="/" component={RouteContainer}>
+        <Route path="/about" components={{content: About}} />
+        <Route path="/demo" components={{content: Demo}} />
+        <Route path="/profile/:address" components={{content: Profile}} />
+      </Route>
+    </Router>
+  );
 };
 
 export default Root;

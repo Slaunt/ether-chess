@@ -1,0 +1,7 @@
+{
+    "extends": ["google", "plugin:react/recommended"],
+    "plugins": ["react"],
+    "rules": {
+        "require-jsdoc": ["off"]
+    }
+}
