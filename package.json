@@ -4,7 +4,7 @@
   "description": "Chess on ethereum",
   "main": "build.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha test/contracts",
     "serve": "webpack-dev-server -d -w",
     "lint": "eslint src/"
   },
@@ -41,9 +41,7 @@
     "solc": "^0.1.6",
     "web3": "^0.15.3",
     "webpack": "^1.12.14",
-    "webpack-dev-server": "^1.14.1"
-  },
-  "dependencies": {
+    "webpack-dev-server": "^1.14.1",
     "gooey": "github:vasuman/gooey"
   }
 }

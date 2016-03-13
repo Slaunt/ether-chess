@@ -10,7 +10,8 @@ const Web3 = require('web3');
 
 const utils = require('../utils.js');
 
-const web3 = new Web3(require('ethereumjs-testrpc').provider());
+let provider = new Web3.providers.HttpProvider('http://localhost:8545');
+const web3 = new Web3(provider);
 
 const name = 'AccountRegistry';
 const files = [
@@ -102,10 +103,12 @@ describe(name, function() {
           value: web3.toWei(0.5, 'ether')
         };
         registry.callout(a, tx, () => {
-          registry.Challenge({from: b, to: a}, 'latest', (_, c) => {
+          let filter = registry.Challenge({from: b, to: a});
+          filter.watch((_, c) => {
             assert(c.args.amount.eq(tx.value));
             assert.equal(c.args.from, b);
             assert.equal(c.args.to, a);
+            filter.stopWatching();
             done();
           });
         });
@@ -114,11 +117,31 @@ describe(name, function() {
   });
 
   describe('#setMatchBroker()', function() {
-    it('should only be callable by the owner', function(done) {
+    it('should not be callable by random user', function(done) {
+      let tx = {
+        from: accounts[2]
+      };
+      const brokerAddr = '0x123babe90987900000000000000000000007babe';
+      registry.setBroker(brokerAddr, tx, () => {
+        registry.broker((_, addr) => {
+          assert.notEqual(brokerAddr, addr);
+          done();
+        });
+      })
+    });
+
+    it('should be callable by the owner', function(done) {
       registry.owner((_, addr) => {
         let tx = {
           from: addr
         };
+        const brokerAddr = '0x0000000000876bdcdeef2300000000000007babe';
+        registry.setBroker(brokerAddr, tx, () => {
+          registry.broker((_, addr) => {
+            assert.equal(brokerAddr, addr);
+            done();
+          });
+        });
       });
     });
   });
