@@ -8,13 +8,12 @@ const Web3 = require('web3');
 
 const utils = require('../utils.js');
 
-let provider = new Web3.providers.HttpProvider('http://localhost:8545');
-let web3 = new Web3(provider);
+const web3 = new Web3(require('ethereumjs-testrpc').provider());
 
 const name = 'AccountRegistry';
 const files = ['./contracts/AccountRegistry.sol'];
 
-describe('AccountRegistry', function() {
+describe(name, function() {
   let accounts, registry;
 
   before(function(done) {
