@@ -2,6 +2,8 @@
 
 /* eslint-env mocha */
 
+/* eslint-disable max-nested-callbacks,new-cap */
+
 const assert = require('assert');
 const gooey = require('gooey');
 const Web3 = require('web3');
@@ -12,10 +14,14 @@ let provider = new Web3.providers.HttpProvider('http://localhost:8545');
 let web3 = new Web3(provider);
 
 const name = 'AccountRegistry';
-const files = ['./contracts/AccountRegistry.sol'];
+const files = [
+  './contracts/AccountRegistry.sol',
+  './contracts/MatchBroker.sol'
+];
 
 describe('AccountRegistry', function() {
-  let accounts, registry;
+  let accounts;
+  let registry;
 
   before(function(done) {
     this.timeout(10000);
@@ -39,7 +45,7 @@ describe('AccountRegistry', function() {
         registry.accounts(addr, (_, val) => {
           assert(!val[0]);
           done();
-        })
+        });
       });
     });
 
@@ -54,7 +60,7 @@ describe('AccountRegistry', function() {
           assert(val[0]);
           assert.equal('guy', val[1]);
           done();
-        })
+        });
       });
     });
   });
@@ -77,8 +83,8 @@ describe('AccountRegistry', function() {
               });
             });
           });
-        })
-      })
+        });
+      });
     });
   });
 
@@ -90,12 +96,12 @@ describe('AccountRegistry', function() {
       let tx = {
         from: a,
         value: web3.toWei(1, 'ether')
-      }
+      };
       registry.register('someguy', tx, () => {
         let tx = {
           from: b,
           value: web3.toWei(0.5, 'ether')
-        }
+        };
         registry.callout(a, tx, () => {
           registry.Challenge({from: b, to: a}, 'latest', (_, c) => {
             assert(c.args.amount.eq(tx.value));
@@ -108,4 +114,13 @@ describe('AccountRegistry', function() {
     });
   });
 
+  describe('#setMatchBroker()', function() {
+    it('should only be callable by the owner', function(done) {
+      registry.owner((_, addr) => {
+        let tx = {
+          from: addr
+        };
+      });
+    });
+  });
 });

@@ -1,10 +1,13 @@
+import './MatchBroker.sol';
+
 contract AccountRegistry {
     uint constant minStake = 1 ether;
     uint16 baseScore = 2000;
 
     event Challenge(address indexed from, address indexed to, uint amount);
 
-    address owner;
+    address public owner;
+    MatchBroker maker;
     mapping(address => Account) public accounts;
 
     struct Request {
@@ -20,9 +23,22 @@ contract AccountRegistry {
         uint16 score;
     }
 
+    modifier onlyOwner() {
+        if (msg.sender != owner) return;
+        _
+    }
+
     modifier isRegistered() {
         if (!accounts[msg.sender].exists) return;
         _
+    }
+
+    function AccountRegistery() {
+        owner = msg.sender;
+    }
+
+    function setMatchBroker(address addr) onlyOwner {
+        maker = MatchBroker(addr);
     }
 
     function register(string name) {
@@ -46,4 +62,6 @@ contract AccountRegistry {
         Challenge(msg.sender, other, msg.value);
     }
 
+    function confirm() isRegistered {
+    }
 }
