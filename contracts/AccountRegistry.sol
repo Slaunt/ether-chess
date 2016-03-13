@@ -6,7 +6,6 @@ contract AccountRegistry {
 
     address owner;
     mapping(address => Account) public accounts;
-    mapping((address, address) => Request) public requests;
 
     struct Request {
         address challenger;
@@ -47,5 +46,4 @@ contract AccountRegistry {
         Challenge(msg.sender, other, msg.value);
     }
 
-    function respond(
 }
