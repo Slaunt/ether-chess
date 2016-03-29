@@ -1,15 +1,15 @@
-contract Resolver {
+contract ResultWatcher {
     function result(address win, address lose);
 }
 
 contract Match {
-    event Move(address indexed match, uint16 idx, string move);
+    event Move(address indexed matchAddress, uint16 idx, string desc);
 
     address public black;
     address public white;
     ResultWatcher watcher;
     uint16 move;
-    byte32 state;
+    string state;
 
     function Match(address b, address w, address callback) {
         black = b;
@@ -21,11 +21,11 @@ contract Match {
 contract MatchBroker {
     address callback;
 
-    public MatchBroker(address cb) {
+    function MatchBroker(address cb) {
         callback = cb;
     }
 
-    function setup(address a, address b) returns (Match match) {
+    function setup(address a, address b) returns (Match) {
         return new Match(a, b, callback);
     }
 }

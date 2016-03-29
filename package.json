@@ -31,6 +31,8 @@
     "eslint": "^2.3.0",
     "eslint-config-google": "^0.4.0",
     "eslint-plugin-react": "^4.2.1",
+    "ethereumjs-testrpc": "^1.2.1",
+    "gooey": "github:vasuman/gooey",
     "material-ui": "^0.14.4",
     "mocha": "^2.4.5",
     "react": "^0.14.7",
@@ -40,7 +42,6 @@
     "solc": "^0.1.6",
     "web3": "^0.15.3",
     "webpack": "^1.12.14",
-    "webpack-dev-server": "^1.14.1",
-    "gooey": "github:vasuman/gooey"
+    "webpack-dev-server": "^1.14.1"
   }
 }

@@ -5,7 +5,7 @@ contract AccountRegistry {
     uint16 baseScore = 2000;
 
     event Challenge(address indexed from, address indexed to, uint idx);
-    event Accepted(uint indexed idx);
+    event Accepted(uint indexed idx, address matchAddress);
     event Denied(uint indexed idx);
 
     MatchBroker public broker;
@@ -14,7 +14,6 @@ contract AccountRegistry {
     mapping(address => Account) public accounts;
     mapping(uint => Request) public requests;
     uint rCount;
-    mapping(address => bool) public matches;
 
     struct Request {
         address challenger;
@@ -39,10 +38,10 @@ contract AccountRegistry {
         _
     }
 
-    modifier response(rIdx) {
+    modifier response(uint rIdx) {
         var request = requests[rIdx];
         if (msg.sender != request.other) return;
-        if (msg.value != request.stake) return;
+        if (msg.value != request.amount) return;
         _
     }
 
@@ -80,15 +79,15 @@ contract AccountRegistry {
     }
 
     function accept(uint rIdx) isRegistered response(rIdx) {
-        var match = broker.setup(request.challenger, request.other);
-        match.send(2 * request.stake);
-        matches[match] = true;
-        Accept(rIdx, match);
+        var request = requests[rIdx];
+        var currentMatch = broker.setup(request.challenger, request.other);
+        currentMatch.send(2 * request.amount);
+        Accepted(rIdx, currentMatch);
     }
 
     function reject(uint rIdx) isRegistered response(rIdx) {
         delete requests[rIdx];
-        Reject(rIdx);
+        Denied(rIdx);
     }
 
     function result(address win, address lose) {

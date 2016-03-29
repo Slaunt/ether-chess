@@ -6,17 +6,15 @@
 
 const assert = require('assert');
 const gooey = require('gooey');
-const Web3 = require('web3');
 
 const utils = require('../utils.js');
 
-let provider = new Web3.providers.HttpProvider('http://localhost:8545');
-const web3 = new Web3(provider);
+const web3 = utils.defaultWeb3();
 
 const name = 'AccountRegistry';
 const files = [
   './contracts/AccountRegistry.sol',
-  './contracts/MatchBroker.sol'
+  './contracts/Match.sol'
 ];
 
 describe(name, function() {
@@ -27,9 +25,9 @@ describe(name, function() {
     this.timeout(10000);
     utils.getAccounts(web3).then(acc => {
       accounts = acc;
-      return gooey.utils.deployFromFiles(web3, acc[0], name, files);
+      return gooey.utils.deployFromFiles(web3, acc[0], [name], files);
     }).then(contract => {
-      registry = contract;
+      [registry] = contract;
       done();
     }).catch(done);
   });
@@ -105,10 +103,9 @@ describe(name, function() {
         registry.callout(a, tx, () => {
           let filter = registry.Challenge({from: b, to: a});
           filter.watch((_, c) => {
-            assert(c.args.amount.eq(tx.value));
-            assert.equal(c.args.from, b);
-            assert.equal(c.args.to, a);
             filter.stopWatching();
+            assert.equal(b, c.args.from);
+            assert.equal(a, c.args.to);
             done();
           });
         });
@@ -118,24 +115,24 @@ describe(name, function() {
 
   describe('#setMatchBroker()', function() {
     it('should not be callable by random user', function(done) {
+      const brokerAddr = '0x123babe90987900000000000000000000007babe';
       let tx = {
         from: accounts[2]
       };
-      const brokerAddr = '0x123babe90987900000000000000000000007babe';
       registry.setBroker(brokerAddr, tx, () => {
         registry.broker((_, addr) => {
           assert.notEqual(brokerAddr, addr);
           done();
         });
-      })
+      });
     });
 
     it('should be callable by the owner', function(done) {
       registry.owner((_, addr) => {
+        const brokerAddr = '0x0000000000876bdcdeef2300000000000007babe';
         let tx = {
           from: addr
         };
-        const brokerAddr = '0x0000000000876bdcdeef2300000000000007babe';
         registry.setBroker(brokerAddr, tx, () => {
           registry.broker((_, addr) => {
             assert.equal(brokerAddr, addr);
